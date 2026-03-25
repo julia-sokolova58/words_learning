@@ -1,8 +1,13 @@
-# german_words/views.py
 from django.shortcuts import render, redirect
 from books.models import Book
 from german_words.models import GermanWord
-from services.text_processor import find_snippet_in_book, final_wordlist
+from services.text_processor import (
+    find_snippet_in_book, 
+    final_wordlist,
+    parse_noun_declension,
+    parse_verb_page,
+    related_words
+)
 from .forms import SnippetForm
 
 
@@ -14,11 +19,9 @@ def home(request):
             first_five = form.cleaned_data['first_five']
             last_five = form.cleaned_data['last_five']
 
-            # Сохраняем в сессии
             request.session['first_five'] = first_five
             request.session['last_five'] = last_five
 
-            # Перенаправляем на страницу с результатами
             return redirect('german_words:words')
     else:
         form = SnippetForm()
@@ -42,30 +45,39 @@ def words(request):
     if snippet is None:
         return render(request, 'error.html', {'message': 'Отрывок не найден'})
 
-    # Получаем два списка: глаголы и существительные
     verbs, nouns = final_wordlist(snippet)
-    
-    # Объединяем (сначала глаголы, потом существительные)
-    all_words = nouns
+    all_words = verbs + nouns
     
     if not all_words:
         return render(request, 'error.html', {'message': 'В отрывке не найдено слов'})
 
-    # Ищем переводы
     words_with_translations = []
     for word in all_words:
         try:
-            german_word = GermanWord.objects.get(german_word=word)
+            german_word = GermanWord.objects.get(german_word__iexact=word)
             words_with_translations.append({
                 'word': word,
                 'translation': german_word.russian_translation,
             })
         except GermanWord.DoesNotExist:
-            # Если слова нет в базе, пропускаем
             continue
 
-    # Очищаем сессию
     del request.session['first_five']
     del request.session['last_five']
 
     return render(request, 'words.html', {'words': words_with_translations})
+
+
+def grammar_page(request, word):
+    """Страница с грамматикой для слова"""
+    result = parse_verb_page(word)
+    if "Кажется, такого слова нет" in result:
+        result = parse_noun_declension(word)
+    
+    return render(request, 'grammar.html', {'word': word, 'grammar': result})
+
+
+def synonyms_page(request, word):
+    """Страница с синонимами для слова"""
+    synonyms = related_words(word, n=5)
+    return render(request, 'synonyms.html', {'word': word, 'synonyms': synonyms})

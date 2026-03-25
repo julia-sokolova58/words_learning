@@ -17,6 +17,10 @@
                             <span class="text-muted ms-2">—</span>
                             <span class="fs-5">{{ item.translation }}</span>
                         </div>
+                        <div>
+                            <a href="{% url 'german_words:grammar' item.word %}" class="btn btn-sm btn-outline-info">Грамматика</a>
+                            <a href="{% url 'german_words:synonyms' item.word %}" class="btn btn-sm btn-outline-secondary">Синонимы</a>
+                        </div>
                     </div>
                 </div>
                 {% endfor %}

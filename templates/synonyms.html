@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}Синонимы: {{ word }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-4">Синонимы для слова "{{ word }}"</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                {% if synonyms %}
+                    <ul class="list-group">
+                        {% for syn in synonyms %}
+                        <li class="list-group-item">{{ syn }}</li>
+                        {% endfor %}
+                    </ul>
+                {% else %}
+                    <p class="text-muted">Синонимы не найдены</p>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
+            <a href="{% url 'german_words:home' %}" class="btn btn-primary">На главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

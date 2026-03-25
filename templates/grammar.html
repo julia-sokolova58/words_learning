@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}Грамматика: {{ word }}{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <h1 class="mb-4">Грамматика для слова "{{ word }}"</h1>
+        
+        <div class="card">
+            <div class="card-body">
+                <pre style="white-space: pre-wrap; font-family: monospace;">{{ grammar }}</pre>
+            </div>
+        </div>
+        
+        <div class="mt-4">
+            <a href="javascript:history.back()" class="btn btn-secondary">Назад</a>
+            <a href="{% url 'german_words:home' %}" class="btn btn-primary">На главную</a>
+        </div>
+    </div>
+</div>
+{% endblock %}
